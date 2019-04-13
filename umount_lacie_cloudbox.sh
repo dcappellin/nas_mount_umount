@@ -2,14 +2,15 @@
 
 set USERNAME = $USER
 
-# Username passed as a parameter
 if ( $1 != "" ) set USERNAME = $1
 
-set SERVICE = "LaCie-CloudBox"
+set SERVICE = LaCie-CloudBox
 set MOUNT_FOLDER = /private/tmp/${SERVICE}_${USERNAME}
 
-if ( `mount | grep -c "on ${MOUNT_FOLDER}"` == 1 ) then
-	umount $MOUNT_FOLDER
+if ( { ( mount | grep -q "on $MOUNT_FOLDER" ) } ) then
+	if ( { diskutil unmount $MOUNT_FOLDER } ) then
+		if ( -d $MOUNT_FOLDER ) rmdir $MOUNT_FOLDER
+	else
+		exit ( $? )
+	endif
 endif
-
-if ( -d $MOUNT_FOLDER ) rmdir $MOUNT_FOLDER
